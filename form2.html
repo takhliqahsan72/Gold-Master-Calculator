@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Gold App</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&display=swap');
+
+        :root {
+            /* FINAL FIX: Using Android's standard Material Design dark background color */
+            --background-color: #121212;
+            --input-bg-color: #121212; 
+            --border-color: #444;
+            --text-color: #EAEAEA;
+            --label-color: #A0A4AB;
+            /* Also matched the accent color from the screenshot */
+            --accent-color: #3885ff;
+            --font-family: 'Noto Sans Arabic', sans-serif;
+        }
+        
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .app-container {
+            height: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            margin-top: 10px;
+        }
+        
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            /* Adjusted gap to better match the screenshot */
+            gap: 10px; 
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .input-label {
+            position: absolute;
+            top: -9px;
+            right: 15px;
+            font-size: 10px;
+            color: var(--text-color);
+            /* This background MUST be identical to the body background */
+            background-color: var(--background-color); 
+            padding: 0 5px;
+        }
+        
+        input, select {
+            background-color: var(--input-bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 6px;
+            font-size: 15px;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            direction: ltr;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        select {
+            direction: rtl;
+            -webkit-appearance: none; -moz-appearance: none; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23A0A4AB'%3E%3Cpath d='M6 8L0 2h12z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: left 15px center;
+        }
+
+        .results-section {
+            margin-top: 5px;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1.5fr repeat(3, 1fr);
+            gap: 0 5px;
+        }
+        
+        .grid-header, .grid-label, .grid-value { text-align: center; padding: 2px 0; }
+        .grid-header { font-size: 12px; color: var(--label-color); }
+        .grid-label { font-size: 14px; text-align: right; }
+        .grid-value { font-size: 15px; font-weight: 700; direction: ltr; }
+
+        .total-price-section {
+            text-align: center;
+            margin-top: -10px;
+        }
+        .total-price-label { font-size: 14px; color: var(--label-color); }
+        .total-price-value { font-size: 28px; font-weight: 700; margin-top: 2px; direction: ltr; }
+        
+        #clearButton {
+            padding: 12px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: -2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Input section -->
+        <div class="input-section">
+            <div class="input-grid">
+                <div class="input-group full-width">
+                    <span class="input-label">گرام وزن</span>
+                    <input type="number" id="grams" inputmode="decimal">
+                </div>
+                
+                <div class="input-group">
+                    <span class="input-label">کاٹ فی تولہ</span>
+                    <input type="number" id="x" inputmode="decimal">
+                </div>
+                <div class="input-group">
+                    <select id="cutUnit">
+                        <option value="ratti">رتی</option>
+                        <option value="masha">ماشے</option>
+                    </select>
+                </div>
+                
+                <div class="input-group full-width">
+                    <span class="input-label">ریٹ فی تولہ</span>
+                    <input type="number" id="pricePerTola" inputmode="decimal">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results section -->
+        <div class="results-section">
+            <div class="results-grid">
+                <div></div>
+                <div class="grid-header">رتی</div>
+                <div class="grid-header">ماشہ</div>
+                <div class="grid-header">تولہ</div>
+
+                <div class="grid-label">کل وزن</div>
+                <div class="grid-value" id="total-ratti">---</div>
+                <div class="grid-value" id="total-masha">---</div>
+                <div class="grid-value" id="total-tola">---</div>
+
+                <div class="grid-label">کل کاٹ</div>
+                <div class="grid-value" id="cut-ratti">---</div>
+                <div class="grid-value" id="cut-masha">---</div>
+                <div class="grid-value" id="cut-tola">---</div>
+                
+                <div class="grid-label">خالص وزن</div>
+                <div class="grid-value" id="net-ratti">---</div>
+                <div class="grid-value" id="net-masha">---</div>
+                <div class="grid-value" id="net-tola">---</div>
+            </div>
+        </div>
+
+        <!-- Total and Clear button section -->
+        <div class="footer-section">
+            <div class="total-price-section">
+                <div class="total-price-label">کل رقم</div>
+                <div class="total-price-value" id="total-price-value">---</div>
+            </div>
+            
+            <button type="button" id="clearButton" onclick="clearAllInputs()">Clear</button>
+        </div>
+    </div>
+
+    <script>
+        const allInputs = document.querySelectorAll('.input-grid input, .input-grid select');
+
+        function calculateAndDisplayResults() {
+            const grams = parseFloat(document.getElementById('grams').value) || 0;
+            const x = parseFloat(document.getElementById('x').value) || 0;
+            const pricePerTola = parseFloat(document.getElementById('pricePerTola').value) || 0;
+            const cutUnit = document.getElementById('cutUnit').value;
+            
+            const GRAMS_PER_TOLA = 11.664;
+            const MASHAS_PER_TOLA = 12;
+            const RATTIS_PER_MASHAS = 8;
+            
+            const totalTolas = grams / GRAMS_PER_TOLA;
+            let totalCaatTolas = 0;
+            if (cutUnit === 'ratti') {
+                totalCaatTolas = totalTolas * (x / (MASHAS_PER_TOLA * RATTIS_PER_MASHAS));
+            } else { // masha
+                totalCaatTolas = totalTolas * (x / MASHAS_PER_TOLA);
+            }
+            
+            const remainingTolas = totalTolas - totalCaatTolas;
+            const totalPrice = remainingTolas * pricePerTola;
+            
+            function convertTolasToTMR(t) {
+                if (isNaN(t) || t < 0) t = 0;
+                let tolas = Math.floor(t);
+                let remainingForMasha = (t - tolas) * MASHAS_PER_TOLA;
+                let mashas = Math.floor(remainingForMasha);
+                let remainingForRatti = (remainingForMasha - mashas) * RATTIS_PER_MASHAS;
+                let rattis = remainingForRatti.toFixed(1);
+                return { tolas, mashas, rattis };
+            }
+
+            const totalTMR = convertTolasToTMR(totalTolas);
+            const cutTMR = convertTolasToTMR(totalCaatTolas);
+            const netTMR = convertTolasToTMR(remainingTolas);
+            
+            document.getElementById('total-tola').innerText = totalTMR.tolas;
+            document.getElementById('total-masha').innerText = totalTMR.mashas;
+            document.getElementById('total-ratti').innerText = totalTMR.rattis;
+
+            document.getElementById('cut-tola').innerText = cutTMR.tolas;
+            document.getElementById('cut-masha').innerText = cutTMR.mashas;
+            document.getElementById('cut-ratti').innerText = cutTMR.rattis;
+
+            document.getElementById('net-tola').innerText = netTMR.tolas;
+            document.getElementById('net-masha').innerText = netTMR.mashas;
+            document.getElementById('net-ratti').innerText = netTMR.rattis;
+            
+            document.getElementById('total-price-value').innerText = totalPrice > 0 ? totalPrice.toLocaleString('en-US', { maximumFractionDigits: 2 }) : '---';
+        }
+
+        function clearResults() {
+            const fields = ['total', 'cut', 'net'];
+            const units = ['tola', 'masha', 'ratti'];
+            fields.forEach(f => {
+                units.forEach(u => {
+                    document.getElementById(`${f}-${u}`).innerText = '---';
+                });
+            });
+            document.getElementById('total-price-value').innerText = '---';
+        }
+
+        function clearAllInputs() {
+            allInputs.forEach(input => {
+                if (input.tagName === 'INPUT') {
+                    input.value = '';
+                }
+            });
+            document.getElementById('cutUnit').value = 'ratti';
+            calculateAndDisplayResults();
+        }
+
+        allInputs.forEach(input => {
+            input.addEventListener('input', calculateAndDisplayResults);
+        });
+        
+        // Initialize with default empty state on page load
+        clearResults();
+
+    </script>
+</body>
+                  </html>
