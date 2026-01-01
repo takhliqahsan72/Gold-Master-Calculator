@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Calculator</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1c1c1e; /* Dark background */
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: #2c2c2e;
+            padding: 15px 20px;
+            text-align: center;
+            width: 100%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+
+        /* Main Content Styles */
+        main {
+            /* FIX 1: Added padding to give space from the screen edges */
+            padding: 20px;
+            width: 100%;
+            max-width: 450px; /* Increased max-width slightly for better spacing */
+            margin-top: 20px;
+            text-align: center;
+            box-sizing: border-box; /* Ensures padding is included in the width calculation */
+        }
+        
+        /* Toggle Buttons */
+        .toggle-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px; /* Increased margin */
+        }
+
+        .toggle-buttons button {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #555;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #3a3a3c;
+            color: #fff;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .toggle-buttons button.active {
+            background-color: #34c759; /* Green for active */
+            border-color: #34c759;
+        }
+
+        /* Input Form Styles */
+        .input-group {
+            position: relative;
+            margin-bottom: -25px;
+        }
+        
+        .tmr-inputs {
+            display: flex;
+            gap: 15px; /* Increased gap */
+        }
+
+        label {
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background-color: #1c1c1e;
+            padding: 0 5px;
+            font-size: 10px;
+            color: #8e8e93;
+        }
+
+        input[type="number"] {
+            background-color: transparent;
+            border: 1px solid #555;
+            border-radius: 8px;
+            padding: 12px 15px; /* Increased padding */
+            font-size: 18px; /* Increased font size */
+            color: #fff;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        
+        /* Gold border for focused input */
+        input[type="number"]:focus {
+            border-color: #ffd700; /* Gold color */
+            outline: none;
+        }
+
+        /* Hide number input arrows */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        
+        /* Result Display */
+        .result-display {
+            margin-top: 45px;
+            margin-bottom: 0px;
+        }
+
+        .result-display .label {
+            font-size: 16px;
+            color: #8e8e93;
+            margin-bottom: 10px;
+        }
+
+        .result-display .value {
+            font-size: 3em;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        /* FIX 2: New styles for the structured TMR result display */
+        .tmr-result-container {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .tmr-unit .label {
+            font-size: 1.2em;
+            color: #8e8e93;
+            font-weight: 500;
+        }
+        
+        .tmr-unit .value {
+            font-size: 2.5em; /* Larger font for the values */
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        /* END OF FIX 2 */
+        
+        /* Clear Button */
+        #clearButton {
+            background-color: #3a3a3c;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 15px;
+            width: 100%;
+            max-width: 200px;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Gold Calculator</h1>
+    </header>
+
+    <main>
+        <div class="toggle-buttons">
+            <button id="tmrToGramsBtn" onclick="showTmrToGrams()">TMR to Grams</button>
+            <button id="gramsToTmrBtn" class="active" onclick="showGramsToTmr()">Grams to TMR</button>
+        </div>
+        
+        <!-- Calculator 1: TMR to Grams -->
+        <div id="tmrToGramsCalc" style="display: none;">
+            <div class="tmr-inputs">
+                <div class="input-group">
+                    <label for="tola">Tola</label>
+                    <input type="number" id="tola" step="any" oninput="calculateGrams()">
+                </div>
+                <div class="input-group">
+                    <label for="masha">Masha</label>
+                    <input type="number" id="masha" step="any" oninput="calculateGrams()">
+                </div>
+                <div class="input-group">
+                    <label for="ratti">Ratti</label>
+                    <input type="number" id="ratti" step="any" oninput="calculateGrams()">
+                </div>
+            </div>
+            <div class="result-display">
+                <div class="label">Total Weight in Grams</div>
+                <div class="value" id="gramsResult">0.000</div>
+            </div>
+        </div>
+
+        <!-- Calculator 2: Grams to TMR -->
+        <div id="gramsToTmrCalc">
+            <div class="input-group">
+                <label for="grams">Grams</label>
+                <input type="number" id="grams" step="any" oninput="calculateTMR()">
+            </div>
+            <div class="result-display">
+                <div class="label">Equivalent TMR</div>
+                <!-- FIX 3: Updated HTML Structure for TMR result -->
+                <div class="tmr-result-container">
+                    <div class="tmr-unit">
+                        <div class="label">Tola</div>
+                        <div class="value" id="tola-val">0</div>
+                    </div>
+                    <div class="tmr-unit">
+                        <div class="label">Masha</div>
+                        <div class="value" id="masha-val">0</div>
+                    </div>
+                    <div class="tmr-unit">
+                        <div class="label">Ratti</div>
+                        <div class="value" id="ratti-val">0.00</div>
+                    </div>
+                </div>
+                 <!-- END OF FIX 3 -->
+            </div>
+        </div>
+        
+        <button type="button" id="clearButton" onclick="clearForms()">
+            <span style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">🗑️</span> Clear
+        </button>
+    </main>
+    
+    <script>
+        // --- LOGIC FROM YOUR ORIGINAL FILE (UNCHANGED) ---
+        
+        function calculateGrams() {
+            const tola = parseFloat(document.getElementById('tola').value) || 0;
+            const masha = parseFloat(document.getElementById('masha').value) || 0;
+            const ratti = parseFloat(document.getElementById('ratti').value) || 0;
+
+            const GRAMS_PER_TOLA = 11.664;
+            const GRAMS_PER_MASHA = 0.972;
+            const GRAMS_PER_RATTI = 0.1215;
+
+            const totalGrams = (tola * GRAMS_PER_TOLA) + (masha * GRAMS_PER_MASHA) + (ratti * GRAMS_PER_RATTI);
+
+            document.getElementById('gramsResult').innerText = totalGrams.toFixed(3);
+        }
+        
+        function calculateTMR() {
+            const grams = parseFloat(document.getElementById('grams').value) || 0;
+
+            const GRAMS_PER_TOLA = 11.664;
+            const GRAMS_PER_MASHA = 0.972;
+            const GRAMS_PER_RATTI = 0.1215;
+
+            const totalTolaValue = grams / GRAMS_PER_TOLA;
+
+            const tola = Math.floor(totalTolaValue);
+            const remainingForMasha = (grams - (tola * GRAMS_PER_TOLA));
+            const masha = Math.floor(remainingForMasha / GRAMS_PER_MASHA);
+            const remainingForRatti = remainingForMasha - (masha * GRAMS_PER_MASHA);
+            const ratti = remainingForRatti / GRAMS_PER_RATTI;
+            
+            // FIX 4: Update the new, separated result elements
+            document.getElementById('tola-val').innerText = tola;
+            document.getElementById('masha-val').innerText = masha;
+            document.getElementById('ratti-val').innerText = ratti.toFixed(2);
+        }
+
+        // --- UI CONTROL FUNCTIONS ---
+        
+        const tmrToGramsCalc = document.getElementById('tmrToGramsCalc');
+        const gramsToTmrCalc = document.getElementById('gramsToTmrCalc');
+        const tmrToGramsBtn = document.getElementById('tmrToGramsBtn');
+        const gramsToTmrBtn = document.getElementById('gramsToTmrBtn');
+        
+        // Set the initial state on page load
+        window.onload = function() {
+            showGramsToTmr();
+        };
+
+        function showTmrToGrams() {
+            gramsToTmrCalc.style.display = 'none';
+            tmrToGramsCalc.style.display = 'block';
+            gramsToTmrBtn.classList.remove('active');
+            tmrToGramsBtn.classList.add('active');
+            clearForms();
+        }
+
+        function showGramsToTmr() {
+            tmrToGramsCalc.style.display = 'none';
+            gramsToTmrCalc.style.display = 'block';
+            tmrToGramsBtn.classList.remove('active');
+            gramsToTmrBtn.classList.add('active');
+            clearForms();
+        }
+
+        function clearForms() {
+            // Clear TMR to Grams form
+            document.getElementById('tola').value = '';
+            document.getElementById('masha').value = '';
+            document.getElementById('ratti').value = '';
+            document.getElementById('gramsResult').innerText = '0.000';
+
+            // Clear Grams to TMR form
+            document.getElementById('grams').value = '';
+            document.getElementById('tola-val').innerText = '0';
+            document.getElementById('masha-val').innerText = '0';
+            document.getElementById('ratti-val').innerText = '0.00';
+        }
+    </script>
+</body>
+</html>
