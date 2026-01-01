@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+    <title>Gold Calculator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Inter', 'Noto Nastaliq Urdu', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 5px;
+            box-sizing: border-box;
+            overflow: auto; /* ✅ allow minimal scroll if keyboard pushes up */
+        }
+
+        /* Prevent large scroll bounce on Android */
+        .calculator-container {
+            width: 100%;
+            max-width: 350px;
+            padding: 10px;
+            background-color: #121212;
+            border-radius: 18px;
+            direction: rtl;
+            position: relative;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .input-group label {
+            margin-bottom: 4px;
+            font-size: 10px;
+            color: #b0b0b0;
+            font-family: 'Noto Nastaliq Urdu';
+        }
+
+        .input-group input {
+            background-color: #2c2c2c;
+            border: 1px solid #444;
+            border-radius: 9px;
+            color: #ffffff;
+            padding: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            direction: ltr;
+        }
+
+        .results-section {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .results-section .label, 
+        .tmr-group .label, 
+        .final-price-container .label {
+            font-size: 10px;
+            color: #b0b0b0;
+            font-family: 'Noto Nastaliq Urdu';
+        }
+
+        #totalWeightDisplay, .tmr-group .value {
+            font-family: 'Inter', sans-serif;
+            direction: ltr;
+        }
+
+        #totalWeightDisplay {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 2px 0 5px 0;
+        }
+
+        .tmr-display {
+            display: flex;
+            justify-content: space-around;
+            background-color: #2c2c2c;
+            padding: 6px 4px;
+            border-radius: 9px;
+            direction: ltr;
+        }
+
+        .tmr-group .value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .final-price-container {
+            text-align: center;
+        }
+
+        #finalPriceDisplay {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2ecc71;
+            margin-top: 2px;
+            font-family: 'Inter', sans-serif;
+            direction: ltr;
+        }
+
+        #clearButton {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            background-color: #333333;
+            color: #ffffff;
+            border: 1px solid #555;
+            border-radius: 9px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        #clearButton:hover {
+            background-color: #d32f2f;
+        }
+
+        .input-group { text-align: center; }
+
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        /* ✅ Small fix: keep visible when keyboard opens */
+        @media (max-height: 500px) {
+            body {
+                align-items: flex-start;
+                padding-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-container">
+        <div class="input-grid">
+            <div class="input-group">
+                <label for="goldRate">گولڈ ریٹ</label>
+                <input id="goldRate" type="number" placeholder="0" />
+            </div>
+            <div class="input-group">
+                <label for="grams">گرام وزن</label>
+                <input id="grams" type="number" placeholder="0.00" />
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="label">ٹوٹل وزن</div>
+            <div id="totalWeightDisplay">0.000</div>
+            <div class="tmr-display">
+                <div class="tmr-group">
+                    <div class="label">تولہ</div>
+                    <div id="tolaResult" class="value">0</div>
+                </div>
+                <div class="tmr-group">
+                    <div class="label">ماشہ</div>
+                    <div id="mashaResult" class="value">0</div>
+                </div>
+                <div class="tmr-group">
+                    <div class="label">رتی</div>
+                    <div id="rattiResult" class="value">0.00</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-grid">
+             <div class="input-group">
+                <label for="charges">چارجز</label>
+                <input id="charges" type="number" placeholder="0" />
+            </div>
+            <div class="input-group">
+                <label for="polishRattiPerTola">خسارہ پالش (رتی)</label>
+                <input id="polishRattiPerTola" type="number" placeholder="0"/>
+            </div>
+        </div>
+
+        <div class="final-price-container">
+            <div class="label">ٹوٹل قیمت</div>
+            <div id="finalPriceDisplay">0.00</div>
+        </div>
+        
+        <button id="clearButton">🗑️ Clear</button>
+    </div>
+
+    <script>
+        const GRAMS_PER_TOLA = 11.664;
+        const RATTI_PER_TOLA = 96;
+        const MASHA_PER_TOLA = 12;
+
+        const allInputs = ['grams', 'goldRate', 'charges', 'polishRattiPerTola'].map(id => document.getElementById(id));
+        const [gramsInput, goldRateInput, chargesInput, polishRattiInput] = allInputs;
+        
+        const totalWeightDisplay = document.getElementById('totalWeightDisplay');
+        const tolaResultDisplay = document.getElementById('tolaResult');
+        const mashaResultDisplay = document.getElementById('mashaResult');
+        const rattiResultDisplay = document.getElementById('rattiResult');
+        const finalPriceDisplay = document.getElementById('finalPriceDisplay');
+        const clearBtn = document.getElementById('clearButton');
+
+        function calculate() {
+            const grams = parseFloat(gramsInput.value) || 0;
+            const ratePerTola = parseFloat(goldRateInput.value) || 0;
+            const polishRattiPerTola = parseFloat(polishRattiInput.value) || 0;
+            const charges = parseFloat(chargesInput.value) || 0;
+
+            const initialWeightInTola = grams / GRAMS_PER_TOLA;
+            const totalPolishLossInRatti = initialWeightInTola * polishRattiPerTola;
+            const totalPolishLossInGrams = (totalPolishLossInRatti / RATTI_PER_TOLA) * GRAMS_PER_TOLA;
+
+            const finalWeightInGrams = grams + totalPolishLossInGrams;
+            const finalWeightInTola = finalWeightInGrams / GRAMS_PER_TOLA;
+            const priceOfGold = finalWeightInTola * ratePerTola;
+            const finalPrice = priceOfGold + charges;
+
+            updateWeightDisplays(finalWeightInGrams, finalWeightInTola);
+            finalPriceDisplay.textContent = Number(finalPrice.toFixed(2)).toLocaleString();
+        }
+
+        function updateWeightDisplays(grams, tolaEquivalent) {
+            totalWeightDisplay.textContent = grams.toFixed(3);
+            const tola = Math.floor(tolaEquivalent);
+            const mashaRemainder = (tolaEquivalent - tola) * MASHA_PER_TOLA;
+            const masha = Math.floor(mashaRemainder);
+            const ratti = (mashaRemainder - masha) * (RATTI_PER_TOLA / MASHA_PER_TOLA);
+            tolaResultDisplay.textContent = tola;
+            mashaResultDisplay.textContent = masha;
+            rattiResultDisplay.textContent = ratti.toFixed(2);
+        }
+
+        function clearAll() {
+            allInputs.forEach(input => input.value = '');
+            calculate();
+        }
+
+        allInputs.forEach(input => input.addEventListener('input', calculate));
+        clearBtn.addEventListener('click', clearAll);
+
+        // ✅ Ensure page stays visible when keyboard opens
+        window.visualViewport.addEventListener('resize', () => {
+            document.body.scrollTop = 0;
+        });
+
+        calculate();
+    </script>
+</body>
+  </html>
